@@ -12,7 +12,7 @@ import imageRouter from "./routes/imageroute.js"
 
 const router = express()
 router.use(express.json())
-const port = 4000
+const port = 1000
 
 
 

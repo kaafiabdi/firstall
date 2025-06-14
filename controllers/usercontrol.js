@@ -52,9 +52,16 @@ const login = async(req,res)=>{
         const baadhe = await usermodel.findOne({username})
 
         if(!baadhe){
-            res.status(500).json({
+           return res.status(500).json({
                 success:false,
                 message:"sorry this user isn't registered"
+            })
+        }
+         const passwordHubiye = await bcrypt.compare(password,baadhe.password)
+         if(!passwordHubiye){
+            return res.status(404).json({
+                succes:false,
+                message:"passworku wuu kaa khaldanyahay"
             })
         }
 
@@ -69,6 +76,7 @@ const login = async(req,res)=>{
                 expiresIn:"30m"
             }
         )
+       
 
         res.status(201).json({
             success:true,
@@ -122,9 +130,59 @@ const getAll = async(req,res)=>{
      }
 }
 
+const changePassword = async (req,res)=>{
+    try{
+        const {oldPassword, newPassword}=req.body
+        const userId = req.userinfo.userid
+
+        const baadhe = await usermodel.findById(userId)
+        if(!baadhe){
+           return res.status(404).json({
+            succuss:false,
+            message:"userkan kuma jiro databse",
+        
+        })
+    }
+
+        const hubiye = await bcrypt.compare(oldPassword, baadhe.password)
+          if(!hubiye){
+           return res.status(404).json({
+            succuss:false,
+            message:"passworku waa kaa khaldanyahay",
+        
+        })
+    }
+
+           const salt = await bcrypt.genSalt(10)
+           const hashPassword = await bcrypt.hash(newPassword, salt)
+
+          baadhe.password = hashPassword
+          baadhe.save()
+
+
+             res.status(200).json({
+            success: true,
+            message: "Password-ka si guul leh ayaa loo beddelay",
+        });
+          
+    
+    
+
+      
+
+        
+
+    
+    }catch(e){
+        console.log(e);
+        
+    }
+}
+
 
 export default {
     register,
     login,
-    getAll
+    getAll,
+    changePassword,
 }
